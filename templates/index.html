@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>PDF Search</title>
+    <style>
+       * {
+          box-sizing: border-box;
+        }
+        
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f2f2f2;
+          margin: 0;
+          padding: 0;
+        }
+        
+        .container {
+          max-width: 800px;
+          margin: auto;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        h1 {
+          text-align: center;
+          margin: 0;
+          padding: 20px 0;
+          font-size: 36px;
+          font-weight: bold;
+        }
+        
+        form {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+        
+        form input[type="text"] {
+          padding: 10px;
+          font-size: 18px;
+          border-radius: 4px;
+          border: none;
+          margin-top: 10px;
+          margin-bottom: 10px;
+          width: 100%;
+          box-shadow: 0px 0px 5px #ddd;
+        }
+        
+        form input[type="submit"] {
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          font-size: 18px;
+          font-weight: bold;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-top: 10px;
+          margin-bottom: 10px;
+          width: 100%;
+        }
+        
+        form input[type="submit"]:hover {
+          background-color: #3e8e41;
+        }
+  
+        form input[type="file"] {
+          color: rgb(112, 106, 106);
+          padding: 10px;
+          font-size: 20px;
+          cursor: pointer;
+          margin-top: 10px;
+          margin-bottom: 10px;
+          width: 100%;
+        }
+        
+        #response {
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 4px;
+          box-shadow: 0px 0px 5px #ddd;
+          margin-bottom: 20px;
+          width: 100%;
+          max-width: 800px;
+        }
+        
+        #response h3 {
+          margin-top: 0px;
+          font-size: 24px;
+          font-weight: bold;
+          margin-bottom: 10px;
+        }
+        
+        #response p {
+          margin-bottom: 10px;
+          font-size: 18px;
+          line-height: 1.5;
+        }
+
+        p#result {
+        color: rgb(171, 132, 132);
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: justify;
+        }
+
+
+        input[type=file] {
+        width: 350px;
+        max-width: 100%;
+        color: #444;
+        padding: 5px;
+        background: #fff;
+        border-radius: 10px;
+        border: 1px solid #555;
+        }
+
+        input[type=file]::file-selector-button {
+        margin-right: 20px;
+        border: none;
+        background: #084cdf;
+        padding: 10px 20px;
+        border-radius: 10px;
+        color: #fff;
+        cursor: pointer;
+        transition: background .2s ease-in-out;
+        }
+
+        input[type=file]::file-selector-button:hover {
+        background: #0d45a5;
+        }
+
+    #result {
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+</style>
+
+      
+</head>
+
+<body>
+    <div class="container">
+      <h1>PDF Search</h1>
+      <!--onsubmit="search(event)" sets the event listener for when the form is submitted. 
+        The search function will be called with the event object as a parameter,
+         which allows us to prevent the default form submission behavior using event.preventDefault().-->
+      <form method="post" onsubmit="search(event)" enctype="multipart/form-data">
+          <input type="file" name="pdf_file">
+          <input type="text" name="query" placeholder="Enter your query here...">
+          <input type="submit" value="Search">
+      </form>
+
+      <div id="response">
+        <h3>Search Results:</h3>
+        <p id="result" style="transition: 0.4s all;"></p>
+      </div>
+    </div>
+
+    <script>
+        async function search(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const query = formData.get('query');
+        
+            if (!query.trim()) {
+                // The query is empty, do not make a request
+                return;
+            }
+        
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    body: formData
+                });
+        
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+        
+                const data = await response.json();
+                const resultDiv = document.querySelector('#result');
+                // data?.result?.split('').forEach(element => {
+                //     resultDiv.textContent = element;                    
+                // })
+                resultDiv.textContent = data.result;
+
+            } catch (error) {
+                console.error(error);
+                const resultDiv = document.querySelector('#result');
+                resultDiv.textContent = 'An error occurred while searching. Please try again later.';
+            }
+        }
+    </script>
+</body>
+
+
+</html>
